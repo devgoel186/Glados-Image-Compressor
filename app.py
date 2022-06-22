@@ -99,6 +99,7 @@ class window(QMainWindow):
         self.browse_button.setFixedSize(30, 25)
         self.browse_button.setText("...")
         self.browse_button.move(210, 84)
+        self.browse_button.clicked.connect(self.openFileNameDialog)
 
         # Select Image Quality Heading
         self.select_quality = QLabel(self.single_bubble_expanded)
@@ -166,6 +167,8 @@ class window(QMainWindow):
         self.source_browse_button.setFixedSize(30, 25)
         self.source_browse_button.setText("...")
         self.source_browse_button.move(210, 84)
+        self.source_browse_button.clicked.connect(
+            self.openFileNamesDialogSource)
 
         # Select Destination Directory Heading
         self.select_image = QLabel(self.dir_bubble_expanded)
@@ -184,6 +187,8 @@ class window(QMainWindow):
         self.destination_browse_button.setFixedSize(30, 25)
         self.destination_browse_button.setText("...")
         self.destination_browse_button.move(210, 164)
+        self.destination_browse_button.clicked.connect(
+            self.openFileNamesDialogDestination)
 
         # Select Image Quality Heading
         self.select_quality = QLabel(self.dir_bubble_expanded)
@@ -210,6 +215,29 @@ class window(QMainWindow):
         self.compress_button.setObjectName("compress_button")
         self.compress_button.setText("Compress")
         self.compress_button.move(110, 290)
+
+    def openFileNameDialog(self):
+        fileName, _ = QFileDialog.getOpenFileName(
+            self, "Select File", "", "All Files (*);;Image Files (*.jpg *.jpeg *.png)")
+        if fileName:
+            print(fileName, _)
+            self.select_image_path.setText(fileName)
+
+    def openFileNamesDialog(self):
+        folderName = QFileDialog.getExistingDirectory(
+            self, "Select Directory")
+        if folderName:
+            return folderName
+        return ""
+
+    def openFileNamesDialogSource(self):
+        folderName = self.openFileNamesDialog()
+        self.select_source_path.setText(folderName)
+
+    def openFileNamesDialogDestination(self):
+        folderName = self.openFileNamesDialog()
+        print(folderName)
+        self.select_destination_path.setText(folderName)
 
     def backArrowClicked(self, event):
         self.single_bubble_expanded.setVisible(False)
