@@ -1,7 +1,9 @@
 import sys
+import os
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from PIL import Image
 
 
 class window(QMainWindow):
@@ -108,10 +110,10 @@ class window(QMainWindow):
         self.select_quality.move(30, 130)
 
         # Select Image Quality
-        self.select_quality_choice = QLineEdit(self.single_bubble_expanded)
-        self.select_quality_choice.setObjectName("select_quality")
-        self.select_quality_choice.setMaximumWidth(100)
-        self.select_quality_choice.move(60, 165)
+        self._2 = QLineEdit(self.single_bubble_expanded)
+        self._2.setObjectName("select_quality")
+        self._2.setMaximumWidth(100)
+        self._2.move(60, 165)
 
         # Select Image Quality (Choice)
         self.select_quality_box = QComboBox(self.single_bubble_expanded)
@@ -120,6 +122,8 @@ class window(QMainWindow):
         self.select_quality_box.addItem("Low")
         self.select_quality_box.setObjectName("select_quality_box")
         self.select_quality_box.move(170, 165)
+        self.select_quality_box.currentIndexChanged.connect(
+            self.quality_value_present)
 
         # Compress Image Button
         self.compress_button = QPushButton(self.single_bubble_expanded)
@@ -197,18 +201,20 @@ class window(QMainWindow):
         self.select_quality.move(30, 210)
 
         # Select Image Quality
-        self.select_quality_choice = QLineEdit(self.dir_bubble_expanded)
-        self.select_quality_choice.setObjectName("select_quality")
-        self.select_quality_choice.setMaximumWidth(100)
-        self.select_quality_choice.move(60, 245)
+        self.select_quality_choice_2 = QLineEdit(self.dir_bubble_expanded)
+        self.select_quality_choice_2.setObjectName("select_quality")
+        self.select_quality_choice_2.setMaximumWidth(100)
+        self.select_quality_choice_2.move(60, 245)
 
         # Select Image Quality (Choice)
-        self.select_quality_box = QComboBox(self.dir_bubble_expanded)
-        self.select_quality_box.addItem("High")
-        self.select_quality_box.addItem("Medium")
-        self.select_quality_box.addItem("Low")
-        self.select_quality_box.setObjectName("select_quality_box")
-        self.select_quality_box.move(170, 245)
+        self.select_quality_box_2 = QComboBox(self.dir_bubble_expanded)
+        self.select_quality_box_2.addItem("High")
+        self.select_quality_box_2.addItem("Medium")
+        self.select_quality_box_2.addItem("Low")
+        self.select_quality_box_2.setObjectName("select_quality_box")
+        self.select_quality_box_2.move(170, 245)
+        self.select_quality_box_2.currentIndexChanged.connect(
+            self.quality_value_present_2)
 
         # Compress Image Button
         self.compress_button = QPushButton(self.dir_bubble_expanded)
@@ -216,17 +222,51 @@ class window(QMainWindow):
         self.compress_button.setText("Compress")
         self.compress_button.move(110, 290)
 
+    def quality_value_present(self):
+        if self.select_quality_box.currentText() == "High":
+            self.select_quality_choice.setText(str(self.image_width))
+
+        elif self.select_quality_box.currentText() == "Medium":
+            self.select_quality_choice.setText(
+                str(int(self.image_width/2)))
+
+        else:
+            self.select_quality_choice.setText(
+                str(int(self.image_width/4)))
+
+    def quality_value_present_2(self):
+        if self.select_quality_box_2.currentText() == "High":
+            self.select_quality_choice_2.setText(str(self.image_width))
+
+        elif self.select_quality_box_2.currentText() == "Medium":
+            self.select_quality_choice_2.setText(
+                str(int(self.image_width/2)))
+
+        else:
+            self.select_quality_choice_2.setText(
+                str(int(self.image_width/4)))
+
     def openFileNameDialog(self):
         fileName, _ = QFileDialog.getOpenFileName(
-            self, "Select File", "", "All Files (*);;Image Files (*.jpg *.jpeg *.png)")
+            self, "Select File", "", "Image Files (*.jpg *.jpeg *.png)")
         if fileName:
-            print(fileName, _)
             self.select_image_path.setText(fileName)
+            image = Image.open(fileName)
+            self.image_width = image.width
+            self.select_quality_choice.setText(str(self.image_width))
 
     def openFileNamesDialog(self):
         folderName = QFileDialog.getExistingDirectory(
             self, "Select Directory")
         if folderName:
+            files = os.listdir(folderName)
+            if len(files) > 0:
+                image = Image.open(folderName + '/' + files[0])
+                self.image_width = image.width
+                self.select_quality_choice_2.setText(str(self.image_width))
+            else:
+                print("No files in the folder")
+                return ""
             return folderName
         return ""
 
@@ -270,3 +310,11 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+#  >>> from PIL import Image
+#  >>> foo = Image.open("path\\to\\image.jpg")
+#  >>> foo.size
+#   (200,374)
+#  >>> foo = foo.resize((160,300),Image.ANTIALIAS)
+#  >>> foo.save("path\\to\\save\\image_scaled.jpg",quality=95)
+#  >>> foo.save("path\\to\\save\\image_scaled_opt.jpg",optimize=True,quality=95)
